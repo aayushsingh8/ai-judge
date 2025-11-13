@@ -4,6 +4,7 @@ import { LawyerPanel } from "@/components/LawyerPanel";
 import { JudgePanel } from "@/components/JudgePanel";
 import { VerdictTimeline } from "@/components/VerdictTimeline";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { HowItWorks } from "@/components/HowItWorks";
 import { Toaster } from "@/components/ui/toaster";
 
 export type Language = "en" | "hi";
@@ -27,22 +28,40 @@ export interface TimelineEntry {
 
 const Index = () => {
   const [language, setLanguage] = useState<Language>("en");
-  const [caseId] = useState<string>(() => `case_${Date.now()}`);
+  const [caseId, setCaseId] = useState<string>(() => `case_${Date.now()}`);
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [currentVerdict, setCurrentVerdict] = useState<VerdictData | null>(null);
-  const [argumentsLeft, setArgumentsLeft] = useState(5);
+  const [argumentsLeftA, setArgumentsLeftA] = useState(5);
+  const [argumentsLeftB, setArgumentsLeftB] = useState(5);
   const [sideADocs, setSideADocs] = useState<string>("");
   const [sideBDocs, setSideBDocs] = useState<string>("");
+  const [docsLocked, setDocsLocked] = useState(false);
 
   const handleInitialVerdict = (verdict: VerdictData) => {
     setCurrentVerdict(verdict);
     setTimeline([{ round: 0, verdict, timestamp: new Date() }]);
+    setDocsLocked(true);
   };
 
-  const handleNewArgument = (verdict: VerdictData) => {
+  const handleNewArgument = (verdict: VerdictData, side: "A" | "B") => {
     setCurrentVerdict(verdict);
     setTimeline(prev => [...prev, { round: timeline.length, verdict, timestamp: new Date() }]);
-    setArgumentsLeft(prev => Math.max(0, prev - 1));
+    if (side === "A") {
+      setArgumentsLeftA(prev => Math.max(0, prev - 1));
+    } else {
+      setArgumentsLeftB(prev => Math.max(0, prev - 1));
+    }
+  };
+
+  const handleReset = () => {
+    setCaseId(`case_${Date.now()}`);
+    setTimeline([]);
+    setCurrentVerdict(null);
+    setArgumentsLeftA(5);
+    setArgumentsLeftB(5);
+    setSideADocs("");
+    setSideBDocs("");
+    setDocsLocked(false);
   };
 
   return (
@@ -75,6 +94,20 @@ const Index = () => {
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-8">
+          {/* How It Works */}
+          <HowItWorks language={language} />
+          {/* Reset Button */}
+          {currentVerdict && (
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handleReset}
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors shadow-lg"
+              >
+                {language === "en" ? "🔄 Reset & Start New Case" : "🔄 रीसेट करें और नया मामला शुरू करें"}
+              </button>
+            </div>
+          )}
+
           {/* Three Panel Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <LawyerPanel
@@ -83,10 +116,11 @@ const Index = () => {
               language={language}
               onVerdictReceived={handleInitialVerdict}
               onArgumentSubmitted={handleNewArgument}
-              argumentsLeft={argumentsLeft}
+              argumentsLeft={argumentsLeftA}
               currentVerdict={currentVerdict}
               onDocsChange={setSideADocs}
               otherSideDocs={sideBDocs}
+              docsLocked={docsLocked}
             />
 
             <JudgePanel verdict={currentVerdict} language={language} />
@@ -97,10 +131,11 @@ const Index = () => {
               language={language}
               onVerdictReceived={handleInitialVerdict}
               onArgumentSubmitted={handleNewArgument}
-              argumentsLeft={argumentsLeft}
+              argumentsLeft={argumentsLeftB}
               currentVerdict={currentVerdict}
               onDocsChange={setSideBDocs}
               otherSideDocs={sideADocs}
+              docsLocked={docsLocked}
             />
           </div>
 
