@@ -12,11 +12,12 @@ interface LawyerPanelProps {
   caseId: string;
   language: Language;
   onVerdictReceived: (verdict: VerdictData) => void;
-  onArgumentSubmitted: (verdict: VerdictData) => void;
+  onArgumentSubmitted: (verdict: VerdictData, side: "A" | "B") => void;
   argumentsLeft: number;
   currentVerdict: VerdictData | null;
   onDocsChange: (docs: string) => void;
   otherSideDocs: string;
+  docsLocked: boolean;
 }
 
 export const LawyerPanel = ({
@@ -29,6 +30,7 @@ export const LawyerPanel = ({
   currentVerdict,
   onDocsChange,
   otherSideDocs,
+  docsLocked,
 }: LawyerPanelProps) => {
   const [documents, setDocuments] = useState("");
   const [argument, setArgument] = useState("");
@@ -105,7 +107,7 @@ export const LawyerPanel = ({
       });
 
       if (error) throw error;
-      onArgumentSubmitted(data.verdict);
+      onArgumentSubmitted(data.verdict, side);
       setArgument("");
       toast({
         title: language === "en" ? "Argument submitted" : "तर्क प्रस्तुत किया गया",
@@ -123,7 +125,9 @@ export const LawyerPanel = ({
     }
   };
 
-  const sideLabel = language === "en" ? `Side ${side}` : `पक्ष ${side}`;
+  const sideLabel = language === "en" 
+    ? `Side ${side} (${side === "A" ? "Plaintiff" : "Defendant"})` 
+    : `पक्ष ${side} (${side === "A" ? "वादी" : "प्रतिवादी"})`;
   const uploadLabel = language === "en" ? "Upload Documents" : "दस्तावेज़ अपलोड करें";
   const argumentLabel = language === "en" ? "Submit Argument" : "तर्क प्रस्तुत करें";
   const getVerdictLabel = language === "en" ? "Get Verdict" : "फैसला प्राप्त करें";
@@ -155,14 +159,22 @@ export const LawyerPanel = ({
               onChange={handleFileUpload}
               className="hidden"
               id={`file-upload-${side}`}
+              disabled={docsLocked}
             />
             <label
               htmlFor={`file-upload-${side}`}
-              className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-border/50 rounded-lg cursor-pointer hover:border-primary/50 transition-colors bg-muted/20"
+              className={`flex items-center justify-center gap-2 p-4 border-2 border-dashed border-border/50 rounded-lg transition-colors bg-muted/20 ${
+                docsLocked ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/50"
+              }`}
             >
               <Upload className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
-                {documents ? (language === "en" ? "Document loaded" : "दस्तावेज़ लोड किया गया") : (language === "en" ? "Click to upload" : "अपलोड करने के लिए क्लिक करें")}
+                {docsLocked 
+                  ? (language === "en" ? "Document locked for this case" : "इस मामले के लिए दस्तावेज़ लॉक है")
+                  : documents 
+                    ? (language === "en" ? "Document loaded" : "दस्तावेज़ लोड किया गया") 
+                    : (language === "en" ? "Click to upload" : "अपलोड करने के लिए क्लिक करें")
+                }
               </span>
             </label>
           </div>
