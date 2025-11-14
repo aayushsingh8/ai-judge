@@ -13,6 +13,8 @@ A production-quality web application that uses Google Gemini AI to analyze legal
 
 Video Link: https://youtu.be/r1WTo9uiEwk?si=76QOgfho1Ewrjv_S
 
+## To Test: How this web app works, you can create your own sample case and upload it on web app as stated or you can get sample data from the Sample Dataset in this github repo (ai-judge/Sample Dataset)
+
 
 ## 📋 Table of Contents
 
