@@ -7,7 +7,12 @@ A production-quality web application that uses Google Gemini AI to analyze legal
 ![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask)
 ![Gemini](https://img.shields.io/badge/Gemini-Pro-4285F4?style=for-the-badge&logo=google)
 
-## URL: https://ai-judge.lovable.app/
+## Project URL: https://ai-judge.lovable.app/
+
+## 🎥 Demo Video
+
+*[Placeholder for demo video link]*
+
 
 ## 📋 Table of Contents
 
@@ -583,20 +588,16 @@ Optional:
 ## 📸 Screenshots
 
 ### Main Interface
-*Three-column layout with document uploads and AI Judge panel*
+<img width="1889" height="638" alt="Screenshot 2025-11-14 225409" src="https://github.com/user-attachments/assets/15cfe444-c77d-41a8-9b5d-89eb3ba4948f" />
 
 ### Verdict Display
-*Comprehensive verdict with confidence meter, bias analysis, and legal reasoning*
+<img width="1893" height="897" alt="Screenshot 2025-11-14 225427" src="https://github.com/user-attachments/assets/edc39246-a3b5-4a4f-aa63-3197cca651bf" />
 
 ### Timeline View
-*Animated timeline showing verdict evolution across argument rounds*
+<img width="1880" height="713" alt="Screenshot 2025-11-14 225443" src="https://github.com/user-attachments/assets/95b67446-138c-4f63-85ce-537f4e537b7a" />
 
 ### Precedents & Comparison
-*Expandable precedent cards and document comparison table*
-
-## 🎥 Demo Video
-
-*[Placeholder for demo video link]*
+<img width="1891" height="931" alt="Screenshot 2025-11-14 225517" src="https://github.com/user-attachments/assets/1693e60e-7375-42f0-bf8c-b842809709df" />
 
 ## 🔒 Security Considerations
 
