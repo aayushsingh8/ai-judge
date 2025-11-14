@@ -114,7 +114,6 @@ const Index = () => {
               side="A"
               caseId={caseId}
               language={language}
-              onVerdictReceived={handleInitialVerdict}
               onArgumentSubmitted={handleNewArgument}
               argumentsLeft={argumentsLeftA}
               currentVerdict={currentVerdict}
@@ -123,13 +122,19 @@ const Index = () => {
               docsLocked={docsLocked}
             />
 
-            <JudgePanel verdict={currentVerdict} language={language} />
+            <JudgePanel 
+              verdict={currentVerdict} 
+              language={language}
+              caseId={caseId}
+              sideADocs={sideADocs}
+              sideBDocs={sideBDocs}
+              onVerdictReceived={handleInitialVerdict}
+            />
 
             <LawyerPanel
               side="B"
               caseId={caseId}
               language={language}
-              onVerdictReceived={handleInitialVerdict}
               onArgumentSubmitted={handleNewArgument}
               argumentsLeft={argumentsLeftB}
               currentVerdict={currentVerdict}

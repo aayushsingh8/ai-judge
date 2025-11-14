@@ -11,7 +11,6 @@ interface LawyerPanelProps {
   side: "A" | "B";
   caseId: string;
   language: Language;
-  onVerdictReceived: (verdict: VerdictData) => void;
   onArgumentSubmitted: (verdict: VerdictData, side: "A" | "B") => void;
   argumentsLeft: number;
   currentVerdict: VerdictData | null;
@@ -24,7 +23,6 @@ export const LawyerPanel = ({
   side,
   caseId,
   language,
-  onVerdictReceived,
   onArgumentSubmitted,
   argumentsLeft,
   currentVerdict,
@@ -48,46 +46,6 @@ export const LawyerPanel = ({
       title: language === "en" ? "Document uploaded" : "दस्तावेज़ अपलोड किया गया",
       description: language === "en" ? `${file.name} loaded successfully` : `${file.name} सफलतापूर्वक लोड किया गया`,
     });
-  };
-
-  const handleGetVerdict = async () => {
-    if (!documents || !otherSideDocs) {
-      toast({
-        title: language === "en" ? "Missing documents" : "दस्तावेज़ गायब हैं",
-        description: language === "en" ? "Both sides must upload documents first" : "दोनों पक्षों को पहले दस्तावेज़ अपलोड करने होंगे",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("ai-judge-verdict", {
-        body: {
-          caseId,
-          sideADocs: side === "A" ? documents : otherSideDocs,
-          sideBDocs: side === "B" ? documents : otherSideDocs,
-          language,
-          type: "initial",
-        },
-      });
-
-      if (error) throw error;
-      onVerdictReceived(data.verdict);
-      toast({
-        title: language === "en" ? "Verdict received" : "फैसला प्राप्त हुआ",
-        description: language === "en" ? "AI Judge has analyzed the case" : "एआई जज ने मामले का विश्लेषण किया है",
-      });
-    } catch (error) {
-      console.error("Error getting verdict:", error);
-      toast({
-        title: language === "en" ? "Error" : "त्रुटि",
-        description: language === "en" ? "Failed to get verdict" : "फैसला प्राप्त करने में विफल",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleSubmitArgument = async () => {
@@ -179,16 +137,6 @@ export const LawyerPanel = ({
             </label>
           </div>
         </div>
-
-        {!currentVerdict && documents && otherSideDocs && (
-          <Button 
-            onClick={handleGetVerdict} 
-            className="w-full bg-primary hover:bg-primary/90 shadow-glow"
-            disabled={isLoading}
-          >
-            {isLoading ? (language === "en" ? "Analyzing..." : "विश्लेषण कर रहे हैं...") : getVerdictLabel}
-          </Button>
-        )}
 
         {currentVerdict && argumentsLeft > 0 && (
           <div className="space-y-3 pt-4 border-t border-border/50">

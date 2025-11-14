@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Scale, TrendingUp, Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,16 +8,64 @@ import type { Language, VerdictData } from "@/pages/Index";
 import { PrecedentCard } from "@/components/PrecedentCard";
 import { ComparisonTable } from "@/components/ComparisonTable";
 import { ArgumentScores } from "@/components/ArgumentScores";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface JudgePanelProps {
   verdict: VerdictData | null;
   language: Language;
+  caseId: string;
+  sideADocs: string;
+  sideBDocs: string;
+  onVerdictReceived: (verdict: VerdictData) => void;
 }
 
-export const JudgePanel = ({ verdict, language }: JudgePanelProps) => {
+export const JudgePanel = ({ verdict, language, caseId, sideADocs, sideBDocs, onVerdictReceived }: JudgePanelProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   const handleDownloadPDF = () => {
     // PDF export functionality will be implemented
     console.log("Downloading PDF...");
+  };
+
+  const handleGetVerdict = async () => {
+    if (!sideADocs || !sideBDocs) {
+      toast({
+        title: language === "en" ? "Missing documents" : "दस्तावेज़ गायब हैं",
+        description: language === "en" ? "Both sides must upload documents first" : "दोनों पक्षों को पहले दस्तावेज़ अपलोड करने होंगे",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-judge-verdict", {
+        body: {
+          caseId,
+          sideADocs,
+          sideBDocs,
+          language,
+          type: "initial",
+        },
+      });
+
+      if (error) throw error;
+      onVerdictReceived(data.verdict);
+      toast({
+        title: language === "en" ? "Verdict received" : "फैसला प्राप्त हुआ",
+        description: language === "en" ? "AI Judge has analyzed the case" : "एआई जज ने मामले का विश्लेषण किया है",
+      });
+    } catch (error) {
+      console.error("Error getting verdict:", error);
+      toast({
+        title: language === "en" ? "Error" : "त्रुटि",
+        description: language === "en" ? "Failed to get verdict" : "फैसला प्राप्त करने में विफल",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getBiasBadgeColor = (bias: string) => {
@@ -56,7 +105,7 @@ export const JudgePanel = ({ verdict, language }: JudgePanelProps) => {
         </div>
 
         {!verdict ? (
-          <div className="text-center py-12 space-y-3">
+          <div className="text-center py-12 space-y-4">
             <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-purple-glow/20 to-primary/20 flex items-center justify-center animate-pulse-glow">
               <Scale className="w-8 h-8 text-purple-glow" />
             </div>
@@ -65,6 +114,18 @@ export const JudgePanel = ({ verdict, language }: JudgePanelProps) => {
                 ? "Waiting for both sides to submit documents..." 
                 : "दोनों पक्षों से दस्तावेज़ प्रस्तुत करने की प्रतीक्षा में..."}
             </p>
+            {sideADocs && sideBDocs && (
+              <Button
+                onClick={handleGetVerdict}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-purple-glow to-primary hover:opacity-90 transition-opacity shadow-glow"
+              >
+                <Scale className="w-4 h-4 mr-2" />
+                {isLoading
+                  ? language === "en" ? "Analyzing..." : "विश्लेषण कर रहे हैं..."
+                  : language === "en" ? "Get Verdict" : "फैसला प्राप्त करें"}
+              </Button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
