@@ -11,7 +11,7 @@ A production-quality web application that uses Google Gemini AI to analyze legal
 
 ## 🎥 Demo Video
 
-*[Placeholder for demo video link]*
+Video Link: https://youtu.be/r1WTo9uiEwk?si=76QOgfho1Ewrjv_S
 
 
 ## 📋 Table of Contents
