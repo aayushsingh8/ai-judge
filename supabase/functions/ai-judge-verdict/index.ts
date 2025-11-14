@@ -1,10 +1,30 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const initialRequestSchema = z.object({
+  caseId: z.string().min(1).max(100),
+  sideADocs: z.string().min(1).max(50000),
+  sideBDocs: z.string().min(1).max(50000),
+  language: z.enum(['en', 'hi']),
+  type: z.literal('initial')
+});
+
+const argumentRequestSchema = z.object({
+  caseId: z.string().min(1).max(100),
+  previousVerdict: z.object({}).passthrough(),
+  argument: z.string().min(1).max(5000),
+  side: z.enum(['A', 'B']),
+  language: z.enum(['en', 'hi']),
+  type: z.literal('argument'),
+  sideADocs: z.string().optional(),
+  sideBDocs: z.string().optional()
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -12,7 +32,42 @@ serve(async (req) => {
   }
 
   try {
-    const { caseId, sideADocs, sideBDocs, previousVerdict, argument, side, language, type } = await req.json();
+    const body = await req.json();
+    
+    // Validate input based on request type
+    let validatedData;
+    try {
+      validatedData = body.type === 'initial' 
+        ? initialRequestSchema.parse(body)
+        : argumentRequestSchema.parse(body);
+    } catch (validationError) {
+      console.error("Validation error:", validationError);
+      const errorDetails = validationError instanceof z.ZodError ? validationError.errors : "Invalid input";
+      return new Response(
+        JSON.stringify({ error: "Invalid input data", details: errorDetails }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
+    }
+
+    const caseId = validatedData.caseId;
+    const language = validatedData.language;
+    const type = validatedData.type;
+    
+    let sideADocs, sideBDocs, previousVerdict, argument, side;
+    
+    if (type === 'initial') {
+      sideADocs = validatedData.sideADocs;
+      sideBDocs = validatedData.sideBDocs;
+    } else {
+      previousVerdict = validatedData.previousVerdict;
+      argument = validatedData.argument;
+      side = validatedData.side;
+      sideADocs = validatedData.sideADocs;
+      sideBDocs = validatedData.sideBDocs;
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
