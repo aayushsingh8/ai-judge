@@ -7,6 +7,8 @@ A production-quality web application that uses Google Gemini AI to analyze legal
 ![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask)
 ![Gemini](https://img.shields.io/badge/Gemini-Pro-4285F4?style=for-the-badge&logo=google)
 
+## URL: https://ai-judge.lovable.app/
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
