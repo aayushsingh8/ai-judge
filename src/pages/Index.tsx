@@ -45,7 +45,9 @@ const Index = () => {
 
   const handleNewArgument = (verdict: VerdictData, side: "A" | "B") => {
     setCurrentVerdict(verdict);
-    setTimeline(prev => [...prev, { round: timeline.length, verdict, timestamp: new Date() }]);
+    // Calculate round based on how many arguments this side has already submitted
+    const roundNumber = side === "A" ? (5 - argumentsLeftA + 1) : (5 - argumentsLeftB + 1);
+    setTimeline(prev => [...prev, { round: roundNumber, verdict, timestamp: new Date() }]);
     if (side === "A") {
       setArgumentsLeftA(prev => Math.max(0, prev - 1));
     } else {
