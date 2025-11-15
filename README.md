@@ -120,7 +120,7 @@ AI Judge is an intelligent legal case analysis platform that:
          │ HTTP/REST
 ┌────────▼────────┐
 │   Flask API     │
-│   (main.py)     │
+│   (main.tsx)     │
 └────────┬────────┘
          │
     ┌────┴────┐
